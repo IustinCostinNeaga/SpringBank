@@ -66,10 +66,10 @@ class AccountServiceTest(@Autowired val accountService: AccountService) {
     fun getBalanceTest(){
 
         val fakeIban = "IT95V0300203280975296921156"
-        whenever(accountRepository.getReferenceById(any())).thenReturn(account())
+        whenever(accountRepository.getReferenceById(any())).thenReturn(account(balance = 10.0))
 
         val result = accountService.getAccountBalance(fakeIban, null)
-        assertThat(result).isEqualTo(balance())
+        assertThat(result).isEqualTo(balance(balance = 10.0))
 
         verify(accountRepository).getReferenceById(fakeIban)
 
@@ -80,7 +80,7 @@ class AccountServiceTest(@Autowired val accountService: AccountService) {
     fun getBalanceWithCurrencyTest(){
 
         val fakeIban = "IT95V0300203280975296921156"
-        whenever(accountRepository.getReferenceById(any())).thenReturn(account())
+        whenever(accountRepository.getReferenceById(any())).thenReturn(account(balance = 10.0))
 
         val result = accountService.getAccountBalance(fakeIban, Currency.USD)
         assertThat(result).isEqualTo(balance(balance = 15.0, currency = Currency.USD))

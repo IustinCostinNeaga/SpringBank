@@ -8,8 +8,6 @@ import it.neaga.bank.sim.model.Currency
 import it.neaga.bank.sim.repository.AccountRepository
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
-import java.util.UUID
-import kotlin.random.Random
 
 @Component
 class IbanGenerator {
@@ -60,7 +58,22 @@ class AccountService(private val ibanGenerator: IbanGenerator, private val accou
     }
 
     fun getAccountBalance(iban: String, currency: Currency?): BalanceResponse {
-        TODO()
+        val account = accountRepository.getReferenceById(iban)
+        val response = if(currency == null) {
+            BalanceResponse(
+                balance = account.balance,
+                iban = account.iban,
+                currency = account.defaultCurrency
+            )
+        } else {
+            val newBalance = account.balance * 1.5
+            BalanceResponse(
+                balance = newBalance,
+                iban = account.iban,
+                currency = currency
+            )
+        }
+        return response
     }
 
 }
