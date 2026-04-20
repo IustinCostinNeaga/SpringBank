@@ -19,10 +19,8 @@ import org.springframework.test.web.client.response.MockRestResponseCreators.wit
 
 @RestClientTest(CurrencyExchangeClient::class)
 @TestPropertySource(properties = ["external-api.exchange.base-url=http://mock-url"])
-class CurrencyExchangeClientTest {
+class CurrencyExchangeClientTest(@Autowired var currencyExchangeClient: CurrencyExchangeClient) {
 
-    @Autowired
-    lateinit var currencyExchangeClient: CurrencyExchangeClient
     @Autowired
     lateinit var server: MockRestServiceServer
 
