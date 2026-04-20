@@ -4,6 +4,7 @@ import it.neaga.bank.sim.dto.request.NewAccountRequest
 import it.neaga.bank.sim.dto.response.NewAccountResponse
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
+import java.util.UUID
 import kotlin.random.Random
 
 @Component
@@ -29,7 +30,10 @@ class IbanGenerator {
 class AccountService(private val ibanGenerator: IbanGenerator) {
 
     fun createNewAccount(newAccount: NewAccountRequest): NewAccountResponse {
-        TODO()
+        return NewAccountResponse(
+            IBAN = ibanGenerator.generateItIban(),
+            currency = newAccount.defaultCurrency
+        )
     }
 
 }

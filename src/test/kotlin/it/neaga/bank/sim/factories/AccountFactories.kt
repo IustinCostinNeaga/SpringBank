@@ -14,8 +14,10 @@ object AccountFactories {
             defaultCurrency = Currency.EUR
         )
 
-        fun newAccountResponse() = NewAccountResponse(
-            IBAN = "AWRONGFULLYWRITTENIBAN",
+        fun newAccountResponse(
+            iban : String = "IT95V0300203280975296921156",
+        ) = NewAccountResponse(
+            IBAN = iban,
             currency = Currency.EUR,
         )
 }
