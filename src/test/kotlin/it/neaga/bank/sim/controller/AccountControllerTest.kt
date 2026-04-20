@@ -8,6 +8,7 @@ import it.neaga.bank.sim.factories.AccountFactories.balance
 import it.neaga.bank.sim.factories.AccountFactories.newAccountRequest
 import it.neaga.bank.sim.factories.AccountFactories.newAccountResponse
 import it.neaga.bank.sim.model.Account
+import it.neaga.bank.sim.model.Currency
 import it.neaga.bank.sim.service.AccountService
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -31,7 +32,7 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
 
     @Test
     @DisplayName("should create a new account correctlly")
-    fun accountCreationTest(){
+    fun accountCreationTest() {
 
         whenever(accountService.createNewAccount(any())).thenReturn(newAccountResponse())
 
@@ -47,7 +48,7 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
 
     @Test
     @DisplayName("should get a account correctly")
-    fun getAccountTest(){
+    fun getAccountTest() {
 
         val fakeIban = "IT94M0300203280778859775156"
         whenever(accountService.getAccount(any())).thenReturn(account(iban = fakeIban))
@@ -63,7 +64,7 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
 
     @Test
     @DisplayName("should get a account balance correctly")
-    fun getAccountBalanceTest(){
+    fun getAccountBalanceTest() {
 
         val fakeIban = "IT94M0300203280778859775156"
         whenever(accountService.getAccountBalance(any(), any())).thenReturn(balance())
@@ -75,5 +76,26 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
             .also { response -> response.expectStatus().isOk }
 
         verify(accountService).getAccountBalance(fakeIban, null)
+    }
+
+    @Test
+    @DisplayName("should get a account balance correctly with a different currency")
+    fun getAccountBalanceWithCurrencySpecifiedTest() {
+
+        val fakeIban = "IT94M0300203280778859775156"
+        whenever(accountService.getAccountBalance(any(), any())).thenReturn(balance())
+
+        webClient.get()
+            .uri { builder ->
+                builder
+                    .path("/account/{iban}/balance")
+                    .queryParam("currency", "USD")
+                    .build(fakeIban)
+            }
+            .exchange()
+            .also { response -> response.expectBody<BalanceResponse>().isEqualTo(balance(currency = Currency.USD, balance = 15.0)) }
+            .also { response -> response.expectStatus().isOk }
+
+        verify(accountService).getAccountBalance(fakeIban, Currency.USD)
     }
 }

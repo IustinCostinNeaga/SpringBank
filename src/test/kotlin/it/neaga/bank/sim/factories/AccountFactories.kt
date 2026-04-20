@@ -37,10 +37,14 @@ object AccountFactories {
             defaultCurrency = defaultCurrency,
         )
 
-    fun balance() = BalanceResponse(
-        balance = 10.0,
-        iban = "IT95V0300203280975296921156",
-        currency = Currency.EUR
+    fun balance(
+        balance : Double = 10.0,
+        currency : Currency = Currency.EUR,
+        iban : String = "IT95V0300203280975296921156",
+    ) = BalanceResponse(
+        balance = balance,
+        iban = iban,
+        currency = currency
     )
 
 }
