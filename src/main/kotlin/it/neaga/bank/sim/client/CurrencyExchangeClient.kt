@@ -9,7 +9,7 @@ import org.springframework.web.client.body
 import java.time.LocalDate
 
 @Service
-class CurrencyExchangeClient(restClientBuilder: RestClient.Builder, @Value("\${external-api.exchange.base-url}") baseUrl: String,) {
+class CurrencyExchangeClient(restClientBuilder: RestClient.Builder, @Value("\${external-api.exchange.base-url:http://localhost:8080}") baseUrl: String,) {
 
     private val restClient: RestClient = restClientBuilder.baseUrl(baseUrl).build()
 
