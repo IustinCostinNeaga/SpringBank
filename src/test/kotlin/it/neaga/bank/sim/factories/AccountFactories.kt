@@ -2,6 +2,7 @@
 
 import it.neaga.bank.sim.dto.request.NewAccountRequest
 import it.neaga.bank.sim.dto.response.NewAccountResponse
+import it.neaga.bank.sim.model.Account
 import it.neaga.bank.sim.model.Currency
 
 object AccountFactories {
@@ -20,4 +21,11 @@ object AccountFactories {
             IBAN = iban,
             currency = Currency.EUR,
         )
+
+        fun account(
+            iban : String = "IT95V0300203280975296921156",
+        ) = Account(
+            iban = iban
+        )
+
 }
