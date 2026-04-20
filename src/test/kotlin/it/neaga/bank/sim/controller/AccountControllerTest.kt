@@ -11,6 +11,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.mockito.kotlin.any
+import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient
@@ -45,5 +46,7 @@ class AccountControllerTest(@Autowired var accountController: AccountController,
             .exchange()
             .also { response -> response.expectBody<NewAccountResponse>().isEqualTo(newAccountResponse()) }
             .also { response -> response.expectStatus().isOk }
+
+        verify(accountService).createNewAccount(newAccountRequest())
     }
 }
