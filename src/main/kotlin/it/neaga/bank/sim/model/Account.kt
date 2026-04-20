@@ -3,6 +3,7 @@ package it.neaga.bank.sim.model
 import jakarta.persistence.Entity
 import jakarta.persistence.Id
 import jakarta.persistence.Table
+import java.math.BigInteger
 
 @Entity
 @Table(name = "account")
@@ -15,4 +16,5 @@ data class Account(
     val phone: String,
     val password: String,
     val defaultCurrency: Currency,
+    val balance: Double = 0.0,
 )

@@ -13,6 +13,7 @@ import it.neaga.bank.sim.service.AccountService
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
@@ -67,7 +68,7 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
     fun getAccountBalanceTest() {
 
         val fakeIban = "IT94M0300203280778859775156"
-        whenever(accountService.getAccountBalance(any(), any())).thenReturn(balance())
+        whenever(accountService.getAccountBalance(any(), anyOrNull())).thenReturn(balance())
 
         webClient.get()
             .uri("/account/$fakeIban/balance")
@@ -83,7 +84,7 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
     fun getAccountBalanceWithCurrencySpecifiedTest() {
 
         val fakeIban = "IT94M0300203280778859775156"
-        whenever(accountService.getAccountBalance(any(), any())).thenReturn(balance())
+        whenever(accountService.getAccountBalance(any(), anyOrNull())).thenReturn(balance(currency = Currency.USD, balance = 15.0))
 
         webClient.get()
             .uri { builder ->
