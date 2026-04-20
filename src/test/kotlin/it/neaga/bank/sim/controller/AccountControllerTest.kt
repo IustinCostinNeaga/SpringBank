@@ -54,14 +54,12 @@ class AccountControllerTest(@Autowired var accountController: AccountController,
     fun getAccountTest(){
 
         val fakeIban = "IT94M0300203280778859775156"
-        val account = account(iban = fakeIban)
-
-        whenever(accountService.getAccount(any())).thenReturn(account)
+        whenever(accountService.getAccount(any())).thenReturn(account(iban = fakeIban))
 
         webClient.get()
             .uri("/account/$fakeIban")
             .exchange()
-            .also { response -> response.expectBody<Account>().isEqualTo(account) }
+            .also { response -> response.expectBody<Account>().isEqualTo(account(iban = fakeIban)) }
             .also { response -> response.expectStatus().isOk }
 
         verify(accountService).getAccount(fakeIban)
