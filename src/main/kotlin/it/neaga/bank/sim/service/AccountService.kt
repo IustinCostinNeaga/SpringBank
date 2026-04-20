@@ -1,5 +1,6 @@
 ﻿package it.neaga.bank.sim.service
 
+import it.neaga.bank.sim.client.CurrencyExchangeClient
 import it.neaga.bank.sim.dto.request.NewAccountRequest
 import it.neaga.bank.sim.dto.response.BalanceResponse
 import it.neaga.bank.sim.dto.response.NewAccountResponse
@@ -29,7 +30,11 @@ class IbanGenerator {
 }
 
 @Service
-class AccountService(private val ibanGenerator: IbanGenerator, private val accountRepository: AccountRepository) {
+class AccountService(
+    private val ibanGenerator: IbanGenerator,
+    private val accountRepository: AccountRepository,
+    private val currencyExchangeClient: CurrencyExchangeClient
+) {
 
     fun createNewAccount(newAccount: NewAccountRequest): NewAccountResponse {
 
@@ -59,16 +64,16 @@ class AccountService(private val ibanGenerator: IbanGenerator, private val accou
 
     fun getAccountBalance(iban: String, currency: Currency?): BalanceResponse {
         val account = accountRepository.getReferenceById(iban)
-        val response = if(currency == null) {
+        val response = if (currency == null) {
             BalanceResponse(
                 balance = account.balance,
                 iban = account.iban,
                 currency = account.defaultCurrency
             )
         } else {
-            val newBalance = account.balance * 1.5
+            val rate = currencyExchangeClient.getRate(account.defaultCurrency, currency)
             BalanceResponse(
-                balance = newBalance,
+                balance = rate * account.balance,
                 iban = account.iban,
                 currency = currency
             )
