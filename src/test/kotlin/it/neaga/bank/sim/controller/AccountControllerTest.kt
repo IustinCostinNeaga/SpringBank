@@ -1,7 +1,10 @@
 ﻿package it.neaga.bank.sim.controller
 
+import it.neaga.bank.sim.dto.response.BalanceResponse
 import it.neaga.bank.sim.dto.response.NewAccountResponse
+import it.neaga.bank.sim.factories.AccountFactories
 import it.neaga.bank.sim.factories.AccountFactories.account
+import it.neaga.bank.sim.factories.AccountFactories.balance
 import it.neaga.bank.sim.factories.AccountFactories.newAccountRequest
 import it.neaga.bank.sim.factories.AccountFactories.newAccountResponse
 import it.neaga.bank.sim.model.Account
@@ -43,7 +46,7 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
     }
 
     @Test
-    @DisplayName("should get a new account correctly")
+    @DisplayName("should get a account correctly")
     fun getAccountTest(){
 
         val fakeIban = "IT94M0300203280778859775156"
@@ -56,5 +59,21 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
             .also { response -> response.expectStatus().isOk }
 
         verify(accountService).getAccount(fakeIban)
+    }
+
+    @Test
+    @DisplayName("should get a account balance correctly")
+    fun getAccountBalanceTest(){
+
+        val fakeIban = "IT94M0300203280778859775156"
+        whenever(accountService.getAccountBalance(any(), any())).thenReturn(balance())
+
+        webClient.get()
+            .uri("/account/$fakeIban/balance")
+            .exchange()
+            .also { response -> response.expectBody<BalanceResponse>().isEqualTo(balance()) }
+            .also { response -> response.expectStatus().isOk }
+
+        verify(accountService).getAccountBalance(fakeIban, null)
     }
 }

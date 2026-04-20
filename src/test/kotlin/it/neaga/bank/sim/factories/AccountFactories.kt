@@ -1,6 +1,7 @@
 ﻿package it.neaga.bank.sim.factories
 
 import it.neaga.bank.sim.dto.request.NewAccountRequest
+import it.neaga.bank.sim.dto.response.BalanceResponse
 import it.neaga.bank.sim.dto.response.NewAccountResponse
 import it.neaga.bank.sim.model.Account
 import it.neaga.bank.sim.model.Currency
@@ -35,5 +36,11 @@ object AccountFactories {
             password = "aPassword",
             defaultCurrency = defaultCurrency,
         )
+
+    fun balance() = BalanceResponse(
+        balance = 10.0,
+        iban = "IT95V0300203280975296921156",
+        currency = Currency.EUR
+    )
 
 }

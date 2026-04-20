@@ -1,8 +1,10 @@
 ﻿package it.neaga.bank.sim.service
 
 import it.neaga.bank.sim.dto.request.NewAccountRequest
+import it.neaga.bank.sim.dto.response.BalanceResponse
 import it.neaga.bank.sim.dto.response.NewAccountResponse
 import it.neaga.bank.sim.model.Account
+import it.neaga.bank.sim.model.Currency
 import it.neaga.bank.sim.repository.AccountRepository
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
@@ -55,6 +57,10 @@ class AccountService(private val ibanGenerator: IbanGenerator, private val accou
 
     fun getAccount(iban: String): Account {
         return accountRepository.getReferenceById(iban)
+    }
+
+    fun getAccountBalance(iban: String, currency: Currency?): BalanceResponse {
+        TODO()
     }
 
 }
