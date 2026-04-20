@@ -45,5 +45,19 @@ class AccountServiceTest(@Autowired val accountService: AccountService) {
 
     }
 
+    @Test
+    @DisplayName("should get a new account")
+    fun getAccountTest(){
+
+        val fakeIban = "IT95V0300203280975296921156"
+        whenever(accountRepository.getReferenceById(any())).thenReturn(account())
+
+        val result = accountService.getAccount(fakeIban)
+        assertThat(result).isEqualTo(account(iban = fakeIban))
+
+        verify(accountRepository).getReferenceById(fakeIban)
+
+    }
+
 
 }
