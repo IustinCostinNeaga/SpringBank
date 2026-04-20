@@ -17,14 +17,6 @@ import org.springframework.test.web.servlet.client.RestTestClient
 @AutoConfigureRestTestClient
 class AccountControllerTest(@Autowired var accountController: AccountController, @Autowired private val webClient: RestTestClient) {
 
-    @LocalServerPort
-    private var port: Int = 0
-
-    @BeforeEach
-    fun setup() {
-        webClient.mutate().baseUrl("http://localhost:$port").build()
-    }
-
     @Test
     @DisplayName("should load AccountController")
     fun loadAccountController() {
@@ -35,7 +27,7 @@ class AccountControllerTest(@Autowired var accountController: AccountController,
     @DisplayName("should create a new account correctlly")
     fun accountCreationTest(){
         webClient.post()
-            .uri("/account")
+            .uri("/account/new")
             .exchange()
             .expectStatus().isOk
     }
