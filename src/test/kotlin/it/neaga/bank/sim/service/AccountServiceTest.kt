@@ -1,5 +1,6 @@
 ﻿package it.neaga.bank.sim.service
 
+import it.neaga.bank.sim.client.CurrencyExchangeClient
 import it.neaga.bank.sim.dto.request.NewAccountRequest
 import it.neaga.bank.sim.factories.AccountFactories
 import it.neaga.bank.sim.factories.AccountFactories.account
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
+import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
@@ -29,6 +31,9 @@ class AccountServiceTest(@Autowired val accountService: AccountService) {
 
     @MockitoBean
     private lateinit var accountRepository: AccountRepository
+
+    @MockitoBean
+    private lateinit var currencyExchangeClient: CurrencyExchangeClient
 
 
     @Test
@@ -72,6 +77,7 @@ class AccountServiceTest(@Autowired val accountService: AccountService) {
         assertThat(result).isEqualTo(balance(balance = 10.0))
 
         verify(accountRepository).getReferenceById(fakeIban)
+        verify(currencyExchangeClient, never()).getRate(any(), any())
 
     }
 
@@ -81,11 +87,14 @@ class AccountServiceTest(@Autowired val accountService: AccountService) {
 
         val fakeIban = "IT95V0300203280975296921156"
         whenever(accountRepository.getReferenceById(any())).thenReturn(account(balance = 10.0))
+        whenever(currencyExchangeClient.getRate(any(), any())).thenReturn(1.5)
 
         val result = accountService.getAccountBalance(fakeIban, Currency.USD)
         assertThat(result).isEqualTo(balance(balance = 15.0, currency = Currency.USD))
 
         verify(accountRepository).getReferenceById(fakeIban)
+        verify(currencyExchangeClient).getRate(Currency.EUR, Currency.USD)
+
 
     }
 
