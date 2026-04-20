@@ -9,9 +9,22 @@ import org.springframework.web.client.body
 import java.time.LocalDate
 
 @Service
-class CurrencyExchangeClient(restClientBuilder: RestClient.Builder) {
+class CurrencyExchangeClient(restClientBuilder: RestClient.Builder, @Value("\${external-api.exchange.base-url}") baseUrl: String,) {
+
+    private val restClient: RestClient = restClientBuilder.baseUrl(baseUrl).build()
 
     fun getRate(from: Currency, to: Currency): Double {
-        TODO()
+        return restClient.get()
+            .uri("/rate/$from/$to")
+            .retrieve()
+            .body<ExchangeRateResponse>()?.rate ?: throw ChangeSetPersister.NotFoundException()
     }
 }
+
+
+data class ExchangeRateResponse(
+    val date: LocalDate,
+    val base: String,
+    val quote: String,
+    val rate: Double
+)

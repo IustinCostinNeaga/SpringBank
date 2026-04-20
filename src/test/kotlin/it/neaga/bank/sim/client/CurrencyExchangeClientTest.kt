@@ -6,25 +6,30 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.restclient.test.autoconfigure.RestClientTest
+import org.springframework.boot.test.context.PropertyMapping
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
+import org.springframework.test.context.TestPropertySource
 import org.springframework.test.web.client.MockRestServiceServer
 import org.springframework.test.web.client.match.MockRestRequestMatchers.method
 import org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo
 import org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess
 
-@SpringBootTest
-class CurrencyExchangeClientTest(@Autowired val currencyExchangeClient: CurrencyExchangeClient) {
+@RestClientTest(CurrencyExchangeClient::class)
+@TestPropertySource(properties = ["external-api.exchange.base-url=http://mock-url"])
+class CurrencyExchangeClientTest {
 
+    @Autowired
+    lateinit var currencyExchangeClient: CurrencyExchangeClient
     @Autowired
     lateinit var server: MockRestServiceServer
 
-
     @Test
-    @DisplayName("should get excange rate from server")
+    @DisplayName("should get exchange rate from server")
     fun getExchangeRate(){
-        server.expect(requestTo("https://api.frankfurter.dev/v2/rate/EUR/USD"))
+        server.expect(requestTo("http://mock-url/rate/EUR/USD"))
             .andExpect(method(HttpMethod.GET))
             .andRespond(withSuccess(jsonResponse, MediaType.APPLICATION_JSON))
 
