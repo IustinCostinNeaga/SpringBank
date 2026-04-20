@@ -1,6 +1,6 @@
 ﻿package it.neaga.bank.sim.controller
 
-import it.neaga.bank.sim.model.NewAccount
+import it.neaga.bank.sim.dto.request.NewAccountResponse
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController
 class AccountController {
 
     @PostMapping("/new")
-    fun newAccount(@RequestBody accountData: NewAccount){
+    fun newAccount(@RequestBody accountData: NewAccountResponse){
         println(accountData)
     }
 
