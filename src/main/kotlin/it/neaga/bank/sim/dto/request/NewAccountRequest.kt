@@ -2,7 +2,7 @@
 
 import it.neaga.bank.sim.model.Currency
 
-data class NewAccountResponse(
+data class NewAccountRequest(
     val name: String,
     val surname: String,
     val email: String,
