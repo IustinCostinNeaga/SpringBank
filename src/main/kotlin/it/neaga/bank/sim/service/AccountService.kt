@@ -2,6 +2,8 @@
 
 import it.neaga.bank.sim.dto.request.NewAccountRequest
 import it.neaga.bank.sim.dto.response.NewAccountResponse
+import it.neaga.bank.sim.model.Account
+import it.neaga.bank.sim.repository.AccountRepository
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 import java.util.UUID
@@ -27,12 +29,27 @@ class IbanGenerator {
 }
 
 @Service
-class AccountService(private val ibanGenerator: IbanGenerator) {
+class AccountService(private val ibanGenerator: IbanGenerator, private val accountRepository: AccountRepository) {
 
     fun createNewAccount(newAccount: NewAccountRequest): NewAccountResponse {
+
+        val iban = ibanGenerator.generateItIban()
+
+        val account = accountRepository.save(
+            Account(
+                iban = iban,
+                name = newAccount.name,
+                surname = newAccount.surname,
+                email = newAccount.email,
+                phone = newAccount.phone,
+                password = newAccount.password,
+                defaultCurrency = newAccount.defaultCurrency,
+            )
+        )
+
         return NewAccountResponse(
-            IBAN = ibanGenerator.generateItIban(),
-            currency = newAccount.defaultCurrency
+            IBAN = account.iban,
+            currency = account.defaultCurrency
         )
     }
 

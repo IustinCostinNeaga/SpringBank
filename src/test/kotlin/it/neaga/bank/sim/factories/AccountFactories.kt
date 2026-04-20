@@ -17,15 +17,23 @@ object AccountFactories {
 
         fun newAccountResponse(
             iban : String = "IT95V0300203280975296921156",
+            currency : Currency = Currency.EUR,
         ) = NewAccountResponse(
             IBAN = iban,
-            currency = Currency.EUR,
+            currency = currency,
         )
 
         fun account(
             iban : String = "IT95V0300203280975296921156",
+            defaultCurrency: Currency = Currency.EUR,
         ) = Account(
-            iban = iban
+            iban = iban,
+            name = "Dario",
+            surname = "Lampa",
+            email = "lampa.dario@example.it",
+            phone = "+39123123123",
+            password = "aPassword",
+            defaultCurrency = defaultCurrency,
         )
 
 }
