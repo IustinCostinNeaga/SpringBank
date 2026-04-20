@@ -3,9 +3,11 @@
 import it.neaga.bank.sim.dto.request.NewAccountRequest
 import it.neaga.bank.sim.factories.AccountFactories
 import it.neaga.bank.sim.factories.AccountFactories.account
+import it.neaga.bank.sim.factories.AccountFactories.balance
 import it.neaga.bank.sim.factories.AccountFactories.newAccountRequest
 import it.neaga.bank.sim.factories.AccountFactories.newAccountResponse
 import it.neaga.bank.sim.model.Account
+import it.neaga.bank.sim.model.Currency
 import it.neaga.bank.sim.repository.AccountRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.*
@@ -46,7 +48,7 @@ class AccountServiceTest(@Autowired val accountService: AccountService) {
     }
 
     @Test
-    @DisplayName("should get a new account")
+    @DisplayName("should get a account")
     fun getAccountTest(){
 
         val fakeIban = "IT95V0300203280975296921156"
@@ -54,6 +56,34 @@ class AccountServiceTest(@Autowired val accountService: AccountService) {
 
         val result = accountService.getAccount(fakeIban)
         assertThat(result).isEqualTo(account(iban = fakeIban))
+
+        verify(accountRepository).getReferenceById(fakeIban)
+
+    }
+
+    @Test
+    @DisplayName("should get an account balance with default currency")
+    fun getBalanceTest(){
+
+        val fakeIban = "IT95V0300203280975296921156"
+        whenever(accountRepository.getReferenceById(any())).thenReturn(account())
+
+        val result = accountService.getAccountBalance(fakeIban, null)
+        assertThat(result).isEqualTo(balance())
+
+        verify(accountRepository).getReferenceById(fakeIban)
+
+    }
+
+    @Test
+    @DisplayName("should get an account balance with set currency")
+    fun getBalanceWithCurrencyTest(){
+
+        val fakeIban = "IT95V0300203280975296921156"
+        whenever(accountRepository.getReferenceById(any())).thenReturn(account())
+
+        val result = accountService.getAccountBalance(fakeIban, Currency.USD)
+        assertThat(result).isEqualTo(balance(balance = 15.0, currency = Currency.USD))
 
         verify(accountRepository).getReferenceById(fakeIban)
 

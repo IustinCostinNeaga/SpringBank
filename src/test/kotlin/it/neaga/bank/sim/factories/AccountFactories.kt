@@ -27,6 +27,7 @@ object AccountFactories {
         fun account(
             iban : String = "IT95V0300203280975296921156",
             defaultCurrency: Currency = Currency.EUR,
+            balance : Double = 0.0,
         ) = Account(
             iban = iban,
             name = "Dario",
@@ -35,6 +36,7 @@ object AccountFactories {
             phone = "+39123123123",
             password = "aPassword",
             defaultCurrency = defaultCurrency,
+            balance = balance,
         )
 
     fun balance(
