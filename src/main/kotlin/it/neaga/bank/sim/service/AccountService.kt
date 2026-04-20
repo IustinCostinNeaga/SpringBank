@@ -53,4 +53,8 @@ class AccountService(private val ibanGenerator: IbanGenerator, private val accou
         )
     }
 
+    fun getAccount(iban: String): Account {
+        TODO()
+    }
+
 }

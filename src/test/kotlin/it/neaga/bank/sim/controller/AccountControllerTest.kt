@@ -1,15 +1,14 @@
 ﻿package it.neaga.bank.sim.controller
 
-import it.neaga.bank.sim.model.Currency
-import it.neaga.bank.sim.dto.request.NewAccountRequest
 import it.neaga.bank.sim.dto.response.NewAccountResponse
+import it.neaga.bank.sim.factories.AccountFactories.account
 import it.neaga.bank.sim.factories.AccountFactories.newAccountRequest
 import it.neaga.bank.sim.factories.AccountFactories.newAccountResponse
+import it.neaga.bank.sim.model.Account
 import it.neaga.bank.sim.service.AccountService
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito
 import org.mockito.kotlin.any
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
@@ -48,5 +47,23 @@ class AccountControllerTest(@Autowired var accountController: AccountController,
             .also { response -> response.expectStatus().isOk }
 
         verify(accountService).createNewAccount(newAccountRequest())
+    }
+
+    @Test
+    @DisplayName("should get a new account correctly")
+    fun getAccountTest(){
+
+        val fakeIban = "IT94M0300203280778859775156"
+        val account = account(iban = fakeIban)
+
+        whenever(accountService.getAccount(any())).thenReturn(account)
+
+        webClient.get()
+            .uri("/account/$fakeIban")
+            .exchange()
+            .also { response -> response.expectBody<Account>().isEqualTo(account) }
+            .also { response -> response.expectStatus().isOk }
+
+        verify(accountService).getAccount(fakeIban)
     }
 }
