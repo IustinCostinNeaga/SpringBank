@@ -1,5 +1,8 @@
 ﻿package it.neaga.bank.sim.controller
 
+import it.neaga.bank.sim.model.Currency
+import it.neaga.bank.sim.model.NewAccount
+import org.apache.el.parser.AstLambdaParameters
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.BeforeAll
@@ -28,8 +31,20 @@ class AccountControllerTest(@Autowired var accountController: AccountController,
     fun accountCreationTest(){
         webClient.post()
             .uri("/account/new")
+            .body(newAccount())
             .exchange()
             .expectStatus().isOk
     }
 
+
+
+    fun newAccount() = NewAccount(
+        name = "Dario",
+        surname = "Lampa",
+        email = "lampa.dario@example.it",
+        phone = "+39123123123",
+        password = "aPassword",
+        defaultCurrency = Currency.EUR,
+        startingBalance = 0.0
+    )
 }
