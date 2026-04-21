@@ -2,11 +2,13 @@
 
 import it.neaga.bank.sim.client.CurrencyExchangeClient
 import it.neaga.bank.sim.dto.request.NewAccountRequest
+import it.neaga.bank.sim.dto.response.WireTransferResponse
 import it.neaga.bank.sim.factories.AccountFactories
 import it.neaga.bank.sim.factories.AccountFactories.account
 import it.neaga.bank.sim.factories.AccountFactories.balance
 import it.neaga.bank.sim.factories.AccountFactories.newAccountRequest
 import it.neaga.bank.sim.factories.AccountFactories.newAccountResponse
+import it.neaga.bank.sim.factories.AccountFactories.wireTransfer
 import it.neaga.bank.sim.model.Account
 import it.neaga.bank.sim.model.Currency
 import it.neaga.bank.sim.repository.AccountRepository
@@ -38,7 +40,7 @@ class AccountServiceTest(@Autowired val accountService: AccountService) {
 
     @Test
     @DisplayName("should create a new account")
-    fun accountCreationTest(){
+    fun accountCreationTest() {
 
         val fakeIban = "IT95V0300203280975296921156"
         whenever(ibanGenerator.generateItIban()).thenReturn(fakeIban)
@@ -54,7 +56,7 @@ class AccountServiceTest(@Autowired val accountService: AccountService) {
 
     @Test
     @DisplayName("should get a account")
-    fun getAccountTest(){
+    fun getAccountTest() {
 
         val fakeIban = "IT95V0300203280975296921156"
         whenever(accountRepository.getReferenceById(any())).thenReturn(account())
@@ -68,7 +70,7 @@ class AccountServiceTest(@Autowired val accountService: AccountService) {
 
     @Test
     @DisplayName("should get an account balance with default currency")
-    fun getBalanceTest(){
+    fun getBalanceTest() {
 
         val fakeIban = "IT95V0300203280975296921156"
         whenever(accountRepository.getReferenceById(any())).thenReturn(account(balance = 10.0))
@@ -83,7 +85,7 @@ class AccountServiceTest(@Autowired val accountService: AccountService) {
 
     @Test
     @DisplayName("should get an account balance with set currency")
-    fun getBalanceWithCurrencyTest(){
+    fun getBalanceWithCurrencyTest() {
 
         val fakeIban = "IT95V0300203280975296921156"
         whenever(accountRepository.getReferenceById(any())).thenReturn(account(balance = 10.0))
@@ -95,8 +97,43 @@ class AccountServiceTest(@Autowired val accountService: AccountService) {
         verify(accountRepository).getReferenceById(fakeIban)
         verify(currencyExchangeClient).getRate(Currency.EUR, Currency.USD)
 
-
     }
 
+    @Test
+    @DisplayName("should create a wire transfer from and to account with same currency")
+    fun wireTransferWithSameCurrencyTest() {
+        val fromFake = "IT95V0300203280975296921156"
+        val toFake = "IT95V0300203280975296921167"
 
+        val fromAccountBeforeTransfer = account(balance = 10.0, defaultCurrency = Currency.EUR, iban = fromFake)
+        val toAccountBeforeTransfer = account(balance = 10.0, defaultCurrency = Currency.USD, iban = toFake)
+
+        whenever(accountRepository.getReferenceById(any()))
+            .thenReturn(fromAccountBeforeTransfer)
+            .thenReturn(toAccountBeforeTransfer)
+
+        whenever(currencyExchangeClient.getRate(any(), any())).thenReturn(1.5)
+
+        whenever(accountRepository.save(any<Account>()))
+            .thenReturn(fromAccountBeforeTransfer.copy(balance = 0.0))
+            .thenReturn(toAccountBeforeTransfer.copy(balance = 25.0))
+
+        val result = accountService.transfer(wireTransfer(from = fromFake, to = toFake, amount = 10.0))
+        assertThat(result).isEqualTo(
+            AccountFactories.transferredResponse(
+                amountTransferred = 10.0,
+                currencySent = Currency.EUR,
+                rate = 1.5,
+                currencyArrived = Currency.USD,
+                accountAfterTransfer = fromAccountBeforeTransfer.copy(balance = 0.0)
+            )
+        )
+
+        verify(accountRepository).getReferenceById(fromFake)
+        verify(accountRepository).getReferenceById(toFake)
+        verify(currencyExchangeClient).getRate(Currency.EUR, Currency.USD)
+        verify(accountRepository).save(fromAccountBeforeTransfer.copy(balance = 0.0))
+        verify(accountRepository).save(toAccountBeforeTransfer.copy(balance = 25.0))
+
+    }
 }
