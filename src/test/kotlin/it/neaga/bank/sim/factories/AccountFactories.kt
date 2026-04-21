@@ -96,7 +96,7 @@ object AccountFactories {
         amount = amount,
         currency = currency,
         rate = rate,
-        accountAfterDeposit = account()
+        accountAfterDeposit = account
     )
 
 }

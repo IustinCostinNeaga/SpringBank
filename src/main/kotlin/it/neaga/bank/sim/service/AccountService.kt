@@ -109,7 +109,24 @@ class AccountService(
     }
 
     fun addBalance(depositRequest: DepositRequest): DepositResponse {
-        TODO()
+        val iban = depositRequest.iban
+        val account = accountRepository.getReferenceById(iban)
+
+        println(account)
+
+        val conversionRate =
+            if(account.defaultCurrency == depositRequest.currency) 1.0
+            else currencyExchangeClient.getRate(depositRequest.currency, account.defaultCurrency)
+
+        val amountToAdd = depositRequest.amount * conversionRate
+        val updatedAccount = accountRepository.save(account.deposit(amountToAdd))
+
+        return DepositResponse(
+            amount = depositRequest.amount,
+            currency = depositRequest.currency,
+            rate = conversionRate,
+            accountAfterDeposit = updatedAccount
+        )
     }
 
 }
