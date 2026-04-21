@@ -10,3 +10,6 @@ class AccountAlreadyExistsException : RuntimeException("Account already exists")
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
 class AccountNotFoundException : RuntimeException("Account not found")
+
+@ResponseStatus(HttpStatus.BAD_REQUEST)
+class NegativeDepositException : RuntimeException("You can't deposit a negative amount")

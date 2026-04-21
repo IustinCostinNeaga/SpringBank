@@ -6,6 +6,7 @@ import it.neaga.bank.sim.dto.response.NewAccountResponse
 import it.neaga.bank.sim.dto.response.WireTransferResponse
 import it.neaga.bank.sim.exceptions.AccountAlreadyExistsException
 import it.neaga.bank.sim.exceptions.AccountNotFoundException
+import it.neaga.bank.sim.exceptions.NegativeDepositException
 import it.neaga.bank.sim.factories.AccountFactories.account
 import it.neaga.bank.sim.factories.AccountFactories.balance
 import it.neaga.bank.sim.factories.AccountFactories.deposit
@@ -164,6 +165,22 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
     }
 
     @Test
+    @DisplayName("should not transfer if amount is negative")
+    fun amountIsNegativeInTransferTest() {
+        val fromIban = "IT94M0300203280778859775156"
+        val toIban = "IT94M030020328077885977515"
+        whenever(accountService.transfer(any())).thenThrow(NegativeDepositException::class.java)
+
+        webClient.patch()
+            .uri("/account/transfer")
+            .body(wireTransfer(from = fromIban, to = toIban))
+            .exchange()
+            .also { response -> response.expectStatus().isBadRequest }
+
+        verify(accountService).transfer(wireTransfer(from = fromIban, to = toIban))
+    }
+
+    @Test
     @DisplayName("should throw 404 if one of the accounts does not exist")
     fun notFoundAccountInTransferTest() {
         val fromIban = "IT94M0300203280778859775156"
@@ -191,6 +208,21 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
             .exchange()
             .also { response -> response.expectBody<DepositResponse>().isEqualTo(depositResponse()) }
             .also { response -> response.expectStatus().isOk }
+
+        verify(accountService).addBalance(deposit(iban = iban))
+    }
+
+    @Test
+    @DisplayName("should not do deposit if balance is negative")
+    fun dontAddBalanceIfNegativeTest(){
+        val iban = "IT94M0300203280778859775156"
+        whenever(accountService.addBalance(any())).thenThrow(NegativeDepositException::class.java)
+
+        webClient.patch()
+            .uri("/account/deposit")
+            .body(deposit(iban = iban))
+            .exchange()
+            .also { response -> response.expectStatus().isBadRequest }
 
         verify(accountService).addBalance(deposit(iban = iban))
     }
