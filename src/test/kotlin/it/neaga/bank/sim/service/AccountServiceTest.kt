@@ -6,6 +6,8 @@ import it.neaga.bank.sim.dto.response.WireTransferResponse
 import it.neaga.bank.sim.factories.AccountFactories
 import it.neaga.bank.sim.factories.AccountFactories.account
 import it.neaga.bank.sim.factories.AccountFactories.balance
+import it.neaga.bank.sim.factories.AccountFactories.deposit
+import it.neaga.bank.sim.factories.AccountFactories.depositResponse
 import it.neaga.bank.sim.factories.AccountFactories.newAccountRequest
 import it.neaga.bank.sim.factories.AccountFactories.newAccountResponse
 import it.neaga.bank.sim.factories.AccountFactories.wireTransfer
@@ -136,4 +138,26 @@ class AccountServiceTest(@Autowired val accountService: AccountService) {
         verify(accountRepository).save(toAccountBeforeTransfer.copy(balance = 25.0))
 
     }
+
+    @Test
+    @DisplayName("should deposit some money on a account")
+    fun depositTest() {
+
+        val fakeIban = "IT95V0300203280975296921156"
+        val accountBeforeDeposit = account(balance = 10.0, iban = fakeIban)
+        val accountAfterDeposit = accountBeforeDeposit.copy(balance = 17.5)
+
+        whenever(accountRepository.getReferenceById(any())).thenReturn(accountBeforeDeposit)
+        whenever(accountRepository.save(any<Account>())).thenReturn(accountAfterDeposit)
+        whenever(currencyExchangeClient.getRate(any(), any())).thenReturn(1.5)
+
+        val result = accountService.addBalance(deposit(iban = fakeIban, amount = 5.0, currency = Currency.USD))
+        assertThat(result).isEqualTo(depositResponse(amount = 5.0, currency = Currency.USD, account = accountAfterDeposit))
+
+        verify(accountRepository).getReferenceById(fakeIban)
+        verify(accountRepository).save(accountAfterDeposit)
+        verify(currencyExchangeClient).getRate(Currency.USD, Currency.EUR)
+
+    }
+
 }
