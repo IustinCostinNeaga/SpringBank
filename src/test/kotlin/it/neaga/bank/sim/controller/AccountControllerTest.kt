@@ -170,15 +170,13 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
     fun amountIsNegativeInTransferTest() {
         val fromIban = "IT94M0300203280778859775156"
         val toIban = "IT94M030020328077885977515"
-        whenever(accountService.transfer(any())).thenThrow(NegativeDepositException::class.java)
 
         webClient.patch()
             .uri("/account/transfer")
-            .body(wireTransfer(from = fromIban, to = toIban))
+            .body(wireTransfer(from = fromIban, to = toIban, amount = -1.0))
             .exchange()
             .also { response -> response.expectStatus().isBadRequest }
 
-        verify(accountService).transfer(wireTransfer(from = fromIban, to = toIban))
     }
 
     @Test
@@ -233,15 +231,13 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
     @DisplayName("should not do deposit if balance is negative")
     fun dontAddBalanceIfNegativeTest(){
         val iban = "IT94M0300203280778859775156"
-        whenever(accountService.addBalance(any())).thenThrow(NegativeDepositException::class.java)
 
         webClient.patch()
             .uri("/account/deposit")
-            .body(deposit(iban = iban))
+            .body(deposit(iban = iban, amount = -1.0))
             .exchange()
             .also { response -> response.expectStatus().isBadRequest }
 
-        verify(accountService).addBalance(deposit(iban = iban))
     }
 
     @Test
