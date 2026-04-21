@@ -2,11 +2,14 @@
 
 import it.neaga.bank.sim.dto.response.BalanceResponse
 import it.neaga.bank.sim.dto.response.NewAccountResponse
+import it.neaga.bank.sim.dto.response.WireTransferResponse
 import it.neaga.bank.sim.factories.AccountFactories
 import it.neaga.bank.sim.factories.AccountFactories.account
 import it.neaga.bank.sim.factories.AccountFactories.balance
 import it.neaga.bank.sim.factories.AccountFactories.newAccountRequest
 import it.neaga.bank.sim.factories.AccountFactories.newAccountResponse
+import it.neaga.bank.sim.factories.AccountFactories.transferredOut
+import it.neaga.bank.sim.factories.AccountFactories.wireTransfer
 import it.neaga.bank.sim.model.Account
 import it.neaga.bank.sim.model.Currency
 import it.neaga.bank.sim.service.AccountService
@@ -80,23 +83,19 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
     }
 
     @Test
-    @DisplayName("should get a account balance correctly with a different currency")
-    fun getAccountBalanceWithCurrencySpecifiedTest() {
+    @DisplayName("should transfer some money from an account to another")
+    fun transferMoneyTest() {
+        val fromIban = "IT94M0300203280778859775156"
+        val toIban = "IT94M030020328077885977515"
+        whenever(accountService.trasnfer(any(), any(), any(), any())).thenReturn(transferredOut())
 
-        val fakeIban = "IT94M0300203280778859775156"
-        whenever(accountService.getAccountBalance(any(), anyOrNull())).thenReturn(balance(currency = Currency.USD, balance = 15.0))
-
-        webClient.get()
-            .uri { builder ->
-                builder
-                    .path("/account/{iban}/balance")
-                    .queryParam("currency", "USD")
-                    .build(fakeIban)
-            }
+        webClient.patch()
+            .uri("/account/transfer")
+            .body(wireTransfer())
             .exchange()
-            .also { response -> response.expectBody<BalanceResponse>().isEqualTo(balance(currency = Currency.USD, balance = 15.0)) }
+            .also { response -> response.expectBody<WireTransferResponse>().isEqualTo(transferredOut()) }
             .also { response -> response.expectStatus().isOk }
 
-        verify(accountService).getAccountBalance(fakeIban, Currency.USD)
+        verify(accountService.trasnfer(fromIban, toIban, 10.0, Currency.EUR))
     }
 }

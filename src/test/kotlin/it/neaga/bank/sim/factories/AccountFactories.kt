@@ -1,8 +1,10 @@
 ﻿package it.neaga.bank.sim.factories
 
 import it.neaga.bank.sim.dto.request.NewAccountRequest
+import it.neaga.bank.sim.dto.request.WireTransferRequest
 import it.neaga.bank.sim.dto.response.BalanceResponse
 import it.neaga.bank.sim.dto.response.NewAccountResponse
+import it.neaga.bank.sim.dto.response.WireTransferResponse
 import it.neaga.bank.sim.model.Account
 import it.neaga.bank.sim.model.Currency
 
@@ -47,6 +49,25 @@ object AccountFactories {
         balance = balance,
         iban = iban,
         currency = currency
+    )
+
+    fun transferredOut(
+        amountTransferred : Double = 10.0,
+    ) = WireTransferResponse(
+        amountTransferred = amountTransferred,
+        currency = Currency.EUR
+    )
+
+    fun wireTransfer(
+        from: String = "anIban",
+        to: String = "anotherIban",
+        amount: Double = 1.0,
+        currency: Currency = Currency.EUR,
+    ) = WireTransferRequest(
+        from = from,
+        to = to,
+        amount = amount,
+        currency = currency,
     )
 
 }
