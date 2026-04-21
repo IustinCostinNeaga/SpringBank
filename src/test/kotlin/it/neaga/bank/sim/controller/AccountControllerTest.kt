@@ -1,10 +1,13 @@
 ﻿package it.neaga.bank.sim.controller
 
 import it.neaga.bank.sim.dto.response.BalanceResponse
+import it.neaga.bank.sim.dto.response.DepositResponse
 import it.neaga.bank.sim.dto.response.NewAccountResponse
 import it.neaga.bank.sim.dto.response.WireTransferResponse
 import it.neaga.bank.sim.factories.AccountFactories.account
 import it.neaga.bank.sim.factories.AccountFactories.balance
+import it.neaga.bank.sim.factories.AccountFactories.deposit
+import it.neaga.bank.sim.factories.AccountFactories.depositResponse
 import it.neaga.bank.sim.factories.AccountFactories.newAccountRequest
 import it.neaga.bank.sim.factories.AccountFactories.newAccountResponse
 import it.neaga.bank.sim.factories.AccountFactories.transferredResponse
@@ -95,5 +98,21 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
             .also { response -> response.expectStatus().isOk }
 
         verify(accountService).transfer(wireTransfer(from = fromIban, to = toIban))
+    }
+
+    @Test
+    @DisplayName("should add balance to account")
+    fun addBalanceTest(){
+        val iban = "IT94M0300203280778859775156"
+        whenever(accountService.addBalance(any())).thenReturn(depositResponse())
+
+        webClient.patch()
+            .uri("/account/deposit")
+            .body(deposit(iban = iban))
+            .exchange()
+            .also { response -> response.expectBody<DepositResponse>().isEqualTo(depositResponse()) }
+            .also { response -> response.expectStatus().isOk }
+
+        verify(accountService).addBalance(deposit(iban = iban))
     }
 }

@@ -1,8 +1,10 @@
 ﻿package it.neaga.bank.sim.factories
 
+import it.neaga.bank.sim.dto.request.DepositRequest
 import it.neaga.bank.sim.dto.request.NewAccountRequest
 import it.neaga.bank.sim.dto.request.WireTransferRequest
 import it.neaga.bank.sim.dto.response.BalanceResponse
+import it.neaga.bank.sim.dto.response.DepositResponse
 import it.neaga.bank.sim.dto.response.NewAccountResponse
 import it.neaga.bank.sim.dto.response.WireTransferResponse
 import it.neaga.bank.sim.model.Account
@@ -73,6 +75,28 @@ object AccountFactories {
         from = from,
         to = to,
         amount = amount,
+    )
+
+    fun deposit(
+        iban: String = "IT95V0300203280975296921156",
+        amount: Double = 1.0,
+        currency: Currency = Currency.EUR,
+    ) = DepositRequest(
+        iban = iban,
+        amount = amount,
+        currency = currency
+    )
+
+    fun depositResponse(
+        amount: Double = 1.0,
+        currency: Currency = Currency.EUR,
+        rate: Double = 1.5,
+        account: Account = account(balance = 11.5),
+    ) = DepositResponse(
+        amount = amount,
+        currency = currency,
+        rate = rate,
+        accountAfterDeposit = account()
     )
 
 }

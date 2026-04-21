@@ -1,9 +1,11 @@
 ﻿package it.neaga.bank.sim.service
 
 import it.neaga.bank.sim.client.CurrencyExchangeClient
+import it.neaga.bank.sim.dto.request.DepositRequest
 import it.neaga.bank.sim.dto.request.NewAccountRequest
 import it.neaga.bank.sim.dto.request.WireTransferRequest
 import it.neaga.bank.sim.dto.response.BalanceResponse
+import it.neaga.bank.sim.dto.response.DepositResponse
 import it.neaga.bank.sim.dto.response.NewAccountResponse
 import it.neaga.bank.sim.dto.response.WireTransferResponse
 import it.neaga.bank.sim.model.Account
@@ -104,6 +106,10 @@ class AccountService(
             currencyArrived = toAccountWithBalanceChanged.defaultCurrency,
             accountAfterTransfer = fromAccountWithBalanceChanged
         )
+    }
+
+    fun addBalance(depositRequest: DepositRequest): DepositResponse {
+        TODO()
     }
 
 }
