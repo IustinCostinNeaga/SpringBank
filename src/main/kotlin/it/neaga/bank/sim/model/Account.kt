@@ -17,4 +17,7 @@ data class Account(
     val password: String = "",
     val defaultCurrency: Currency = Currency.EUR,
     val balance: Double = 0.0,
-)
+) {
+    fun withdraw(amount: Double): Account = this.copy(balance = this.balance - amount)
+    fun deposit(amount: Double): Account = this.copy(balance = this.balance + amount)
+}

@@ -84,7 +84,26 @@ class AccountService(
     }
 
     fun transfer(wireTransferRequest: WireTransferRequest): WireTransferResponse {
-        TODO()
+        val fromAccount = accountRepository.getReferenceById(wireTransferRequest.from)
+        val toAccount = accountRepository.getReferenceById(wireTransferRequest.to)
+
+        val amountToRemove = wireTransferRequest.amount
+        val conversionRate =
+            if (fromAccount.defaultCurrency == toAccount.defaultCurrency) 1.0
+            else currencyExchangeClient.getRate(fromAccount.defaultCurrency, toAccount.defaultCurrency)
+
+        val amountToAdd = amountToRemove * conversionRate
+
+        val fromAccountWithBalanceChanged = accountRepository.save(fromAccount.withdraw(amountToRemove))
+        val toAccountWithBalanceChanged = accountRepository.save(toAccount.deposit(amountToAdd))
+
+        return WireTransferResponse(
+            amountSent = amountToRemove,
+            currencySent = fromAccountWithBalanceChanged.defaultCurrency,
+            amountArrived = amountToAdd,
+            currencyArrived = toAccountWithBalanceChanged.defaultCurrency,
+            accountAfterTransfer = fromAccountWithBalanceChanged
+        )
     }
 
 }
