@@ -4,6 +4,7 @@ import it.neaga.bank.sim.dto.response.BalanceResponse
 import it.neaga.bank.sim.dto.response.DepositResponse
 import it.neaga.bank.sim.dto.response.NewAccountResponse
 import it.neaga.bank.sim.dto.response.WireTransferResponse
+import it.neaga.bank.sim.exceptions.AccountAlreadyExistsException
 import it.neaga.bank.sim.factories.AccountFactories.account
 import it.neaga.bank.sim.factories.AccountFactories.balance
 import it.neaga.bank.sim.factories.AccountFactories.deposit
@@ -29,6 +30,7 @@ import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.client.RestTestClient
 import org.springframework.test.web.servlet.client.expectBody
+import javax.management.openmbean.KeyAlreadyExistsException
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureRestTestClient
@@ -70,13 +72,13 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
     @Test
     @DisplayName("should return 4xx if account already exists")
     fun accountCreationErrorConflictTest() {
-        whenever(accountService.createNewAccount(any())).thenThrow(DataIntegrityViolationException::class.java)
+        whenever(accountService.createNewAccount(any())).thenThrow(AccountAlreadyExistsException::class.java)
 
         webClient.post()
             .uri("/account/new")
             .body( newAccountRequest())
             .exchange()
-            .also { response -> response.expectStatus().is5xxServerError }
+            .also { response -> response.expectStatus().is4xxClientError }
 
         verify(accountService).createNewAccount(newAccountRequest())
     }
