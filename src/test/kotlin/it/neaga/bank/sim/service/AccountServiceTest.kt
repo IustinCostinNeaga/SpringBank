@@ -102,8 +102,8 @@ class AccountServiceTest(@Autowired val accountService: AccountService) {
     }
 
     @Test
-    @DisplayName("should create a wire transfer from and to account with same currency")
-    fun wireTransferWithSameCurrencyTest() {
+    @DisplayName("should create a wire transfer from and to account with different currency")
+    fun wireTransferWithDiffCurrencyTest() {
         val fromFake = "IT95V0300203280975296921156"
         val toFake = "IT95V0300203280975296921167"
 
@@ -140,8 +140,46 @@ class AccountServiceTest(@Autowired val accountService: AccountService) {
     }
 
     @Test
-    @DisplayName("should deposit some money on a account")
-    fun depositTest() {
+    @DisplayName("should create a wire transfer from and to account with same currency")
+    fun wireTransferWithSameCurrencyTest() {
+        val fromFake = "IT95V0300203280975296921156"
+        val toFake = "IT95V0300203280975296921167"
+
+        val fromAccountBeforeTransfer = account(balance = 10.0, iban = fromFake)
+        val toAccountBeforeTransfer = account(balance = 10.0, iban = toFake)
+
+        whenever(accountRepository.getReferenceById(any()))
+            .thenReturn(fromAccountBeforeTransfer)
+            .thenReturn(toAccountBeforeTransfer)
+
+        whenever(currencyExchangeClient.getRate(any(), any())).thenReturn(1.5)
+
+        whenever(accountRepository.save(any<Account>()))
+            .thenReturn(fromAccountBeforeTransfer.copy(balance = 0.0))
+            .thenReturn(toAccountBeforeTransfer.copy(balance = 20.0))
+
+        val result = accountService.transfer(wireTransfer(from = fromFake, to = toFake, amount = 10.0))
+        assertThat(result).isEqualTo(
+            AccountFactories.transferredResponse(
+                amountTransferred = 10.0,
+                currencySent = Currency.EUR,
+                rate = 1.0,
+                currencyArrived = Currency.EUR,
+                accountAfterTransfer = fromAccountBeforeTransfer.copy(balance = 0.0)
+            )
+        )
+
+        verify(accountRepository).getReferenceById(fromFake)
+        verify(accountRepository).getReferenceById(toFake)
+        verify(currencyExchangeClient, never()).getRate(Currency.EUR, Currency.USD)
+        verify(accountRepository).save(fromAccountBeforeTransfer.copy(balance = 0.0))
+        verify(accountRepository).save(toAccountBeforeTransfer.copy(balance = 20.0))
+
+    }
+
+    @Test
+    @DisplayName("should deposit some money on a account with a different currency")
+    fun depositDifferentCurrencyTest() {
 
         val fakeIban = "IT95V0300203280975296921156"
         val accountBeforeDeposit = account(balance = 10.0, iban = fakeIban)
@@ -157,6 +195,26 @@ class AccountServiceTest(@Autowired val accountService: AccountService) {
         verify(accountRepository).getReferenceById(fakeIban)
         verify(accountRepository).save(accountAfterDeposit)
         verify(currencyExchangeClient).getRate(Currency.USD, Currency.EUR)
+
+    }
+    @Test
+    @DisplayName("should deposit some money on a account with the same currency")
+    fun depositTest() {
+
+        val fakeIban = "IT95V0300203280975296921156"
+        val accountBeforeDeposit = account(balance = 10.0, iban = fakeIban)
+        val accountAfterDeposit = accountBeforeDeposit.copy(balance = 15.0)
+
+        whenever(accountRepository.getReferenceById(any())).thenReturn(accountBeforeDeposit)
+        whenever(accountRepository.save(any<Account>())).thenReturn(accountAfterDeposit)
+        whenever(currencyExchangeClient.getRate(any(), any())).thenReturn(1.5)
+
+        val result = accountService.addBalance(deposit(iban = fakeIban, amount = 5.0))
+        assertThat(result).isEqualTo(depositResponse(amount = 5.0, account = accountAfterDeposit, rate = 1.0))
+
+        verify(accountRepository).getReferenceById(fakeIban)
+        verify(accountRepository).save(accountAfterDeposit)
+        verify(currencyExchangeClient, never()).getRate(Currency.USD, Currency.EUR)
 
     }
 

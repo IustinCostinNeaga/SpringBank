@@ -112,8 +112,6 @@ class AccountService(
         val iban = depositRequest.iban
         val account = accountRepository.getReferenceById(iban)
 
-        println(account)
-
         val conversionRate =
             if(account.defaultCurrency == depositRequest.currency) 1.0
             else currencyExchangeClient.getRate(depositRequest.currency, account.defaultCurrency)
