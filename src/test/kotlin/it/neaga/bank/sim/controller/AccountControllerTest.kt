@@ -7,6 +7,7 @@ import it.neaga.bank.sim.dto.response.WireTransferResponse
 import it.neaga.bank.sim.exceptions.AccountAlreadyExistsException
 import it.neaga.bank.sim.exceptions.AccountNotFoundException
 import it.neaga.bank.sim.exceptions.NegativeDepositException
+import it.neaga.bank.sim.exceptions.NotEnoughMoneyException
 import it.neaga.bank.sim.factories.AccountFactories.account
 import it.neaga.bank.sim.factories.AccountFactories.balance
 import it.neaga.bank.sim.factories.AccountFactories.deposit
@@ -176,6 +177,22 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
             .body(wireTransfer(from = fromIban, to = toIban))
             .exchange()
             .also { response -> response.expectStatus().isBadRequest }
+
+        verify(accountService).transfer(wireTransfer(from = fromIban, to = toIban))
+    }
+
+    @Test
+    @DisplayName("should not transfer if the first account does not have enough money")
+    fun accountDoesNotHaveEnoughMoneyTest() {
+        val fromIban = "IT94M0300203280778859775156"
+        val toIban = "IT94M030020328077885977515"
+        whenever(accountService.transfer(any())).thenThrow(NotEnoughMoneyException::class.java)
+
+        webClient.patch()
+            .uri("/account/transfer")
+            .body(wireTransfer(from = fromIban, to = toIban))
+            .exchange()
+            .also { response -> response.expectStatus().isForbidden }
 
         verify(accountService).transfer(wireTransfer(from = fromIban, to = toIban))
     }

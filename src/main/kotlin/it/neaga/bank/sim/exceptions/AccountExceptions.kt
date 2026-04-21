@@ -13,3 +13,6 @@ class AccountNotFoundException : RuntimeException("Account not found")
 
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 class NegativeDepositException : RuntimeException("You can't deposit a negative amount")
+
+@ResponseStatus(HttpStatus.FORBIDDEN)
+class NotEnoughMoneyException : RuntimeException("You don't have enough money for the transfer")
