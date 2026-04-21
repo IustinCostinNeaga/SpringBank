@@ -18,12 +18,14 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
+import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.client.RestTestClient
 import org.springframework.test.web.servlet.client.expectBody
@@ -47,6 +49,34 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
             .exchange()
             .also { response -> response.expectBody<NewAccountResponse>().isEqualTo(newAccountResponse()) }
             .also { response -> response.expectStatus().isOk }
+
+        verify(accountService).createNewAccount(newAccountRequest())
+    }
+
+    @Test
+    @DisplayName("should return 4xx if body is not correct")
+    fun accountCreationErrorParsingTest() {
+        whenever(accountService.createNewAccount(any())).thenReturn(newAccountResponse())
+
+        webClient.post()
+            .uri("/account/new")
+            .body( "\"name\": \"mario\"")
+            .exchange()
+            .also { response -> response.expectStatus().is4xxClientError }
+
+        verify(accountService, never()).createNewAccount(newAccountRequest())
+    }
+
+    @Test
+    @DisplayName("should return 4xx if account already exists")
+    fun accountCreationErrorConflictTest() {
+        whenever(accountService.createNewAccount(any())).thenThrow(DataIntegrityViolationException::class.java)
+
+        webClient.post()
+            .uri("/account/new")
+            .body( newAccountRequest())
+            .exchange()
+            .also { response -> response.expectStatus().is5xxServerError }
 
         verify(accountService).createNewAccount(newAccountRequest())
     }
