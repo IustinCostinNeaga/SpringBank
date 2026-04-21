@@ -6,5 +6,4 @@ data class WireTransferRequest(
     val from: String,
     val to: String,
     val amount: Double,
-    val currency: Currency? = null
 )

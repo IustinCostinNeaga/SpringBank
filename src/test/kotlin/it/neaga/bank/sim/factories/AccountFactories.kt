@@ -62,12 +62,10 @@ object AccountFactories {
         from: String = "anIban",
         to: String = "anotherIban",
         amount: Double = 1.0,
-        currency: Currency = Currency.EUR,
     ) = WireTransferRequest(
         from = from,
         to = to,
         amount = amount,
-        currency = currency,
     )
 
 }
