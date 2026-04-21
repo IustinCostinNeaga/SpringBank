@@ -51,11 +51,18 @@ object AccountFactories {
         currency = currency
     )
 
-    fun transferredOut(
+    fun transferredResponse(
         amountTransferred : Double = 10.0,
+        currencySent: Currency = Currency.EUR,
+        rate: Double = 1.5,
+        currencyArrived: Currency = Currency.USD,
+        accountAfterTransfer: Account = account(balance =10.0),
     ) = WireTransferResponse(
-        amountTransferred = amountTransferred,
-        currency = Currency.EUR
+        amountSent = amountTransferred,
+        currencySent = currencySent,
+        amountArrived = amountTransferred * rate,
+        currencyArrived = currencyArrived,
+        accountAfterTransfer = accountAfterTransfer
     )
 
     fun wireTransfer(

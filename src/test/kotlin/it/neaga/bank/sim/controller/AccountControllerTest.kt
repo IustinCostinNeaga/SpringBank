@@ -7,10 +7,9 @@ import it.neaga.bank.sim.factories.AccountFactories.account
 import it.neaga.bank.sim.factories.AccountFactories.balance
 import it.neaga.bank.sim.factories.AccountFactories.newAccountRequest
 import it.neaga.bank.sim.factories.AccountFactories.newAccountResponse
-import it.neaga.bank.sim.factories.AccountFactories.transferredOut
+import it.neaga.bank.sim.factories.AccountFactories.transferredResponse
 import it.neaga.bank.sim.factories.AccountFactories.wireTransfer
 import it.neaga.bank.sim.model.Account
-import it.neaga.bank.sim.model.Currency
 import it.neaga.bank.sim.service.AccountService
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -86,13 +85,13 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
     fun transferMoneyTest() {
         val fromIban = "IT94M0300203280778859775156"
         val toIban = "IT94M030020328077885977515"
-        whenever(accountService.transfer(any())).thenReturn(transferredOut())
+        whenever(accountService.transfer(any())).thenReturn(transferredResponse())
 
         webClient.patch()
             .uri("/account/transfer")
             .body(wireTransfer(from = fromIban, to = toIban))
             .exchange()
-            .also { response -> response.expectBody<WireTransferResponse>().isEqualTo(transferredOut()) }
+            .also { response -> response.expectBody<WireTransferResponse>().isEqualTo(transferredResponse()) }
             .also { response -> response.expectStatus().isOk }
 
         verify(accountService).transfer(wireTransfer(from = fromIban, to = toIban))
