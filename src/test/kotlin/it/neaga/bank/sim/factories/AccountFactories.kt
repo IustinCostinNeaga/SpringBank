@@ -90,11 +90,15 @@ object AccountFactories {
     fun depositResponse(
         amount: Double = 1.0,
         currency: Currency = Currency.EUR,
-        rate: Double = 1.5,
+        convertedAmount: Double? = null,
+        accountCurrency: Currency? = null,
+        rate: Double? = null,
         account: Account = account(balance = 11.5),
     ) = DepositResponse(
         amount = amount,
         currency = currency,
+        convertedAmount = convertedAmount,
+        accountCurrency = accountCurrency,
         rate = rate,
         accountAfterDeposit = account
     )

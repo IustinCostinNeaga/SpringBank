@@ -190,7 +190,7 @@ class AccountServiceTest(@Autowired val accountService: AccountService) {
         whenever(currencyExchangeClient.getRate(any(), any())).thenReturn(1.5)
 
         val result = accountService.addBalance(deposit(iban = fakeIban, amount = 5.0, currency = Currency.USD))
-        assertThat(result).isEqualTo(depositResponse(amount = 5.0, currency = Currency.USD, account = accountAfterDeposit))
+        assertThat(result).isEqualTo(depositResponse(amount = 5.0, currency = Currency.USD, convertedAmount = 7.5, accountCurrency = Currency.EUR, rate = 1.5, account = accountAfterDeposit))
 
         verify(accountRepository).getReferenceById(fakeIban)
         verify(accountRepository).save(accountAfterDeposit)
@@ -210,7 +210,7 @@ class AccountServiceTest(@Autowired val accountService: AccountService) {
         whenever(currencyExchangeClient.getRate(any(), any())).thenReturn(1.5)
 
         val result = accountService.addBalance(deposit(iban = fakeIban, amount = 5.0))
-        assertThat(result).isEqualTo(depositResponse(amount = 5.0, account = accountAfterDeposit, rate = 1.0))
+        assertThat(result).isEqualTo(depositResponse(amount = 5.0, account = accountAfterDeposit))
 
         verify(accountRepository).getReferenceById(fakeIban)
         verify(accountRepository).save(accountAfterDeposit)

@@ -6,6 +6,8 @@ import it.neaga.bank.sim.model.Currency
 data class DepositResponse(
     val amount: Double,
     val currency: Currency,
-    val rate: Double,
+    val convertedAmount: Double? = null,
+    val accountCurrency: Currency? = null,
+    val rate: Double? = null,
     val accountAfterDeposit: Account
 )

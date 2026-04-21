@@ -122,7 +122,9 @@ class AccountService(
         return DepositResponse(
             amount = depositRequest.amount,
             currency = depositRequest.currency,
-            rate = conversionRate,
+            convertedAmount = if(account.defaultCurrency != depositRequest.currency) amountToAdd else null,
+            accountCurrency = if(account.defaultCurrency != depositRequest.currency) account.defaultCurrency else null,
+            rate = if(account.defaultCurrency != depositRequest.currency) conversionRate else null,
             accountAfterDeposit = updatedAccount
         )
     }
