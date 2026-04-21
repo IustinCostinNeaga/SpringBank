@@ -91,7 +91,7 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
     @DisplayName("should get a account correctly")
     fun getAccountTest() {
 
-        val fakeIban = "IT94M0300203280778859775156"
+        val fakeIban = "IT11U0300203280797111426236"
         whenever(accountService.getAccount(any())).thenReturn(account(iban = fakeIban))
 
         webClient.get()
@@ -104,9 +104,22 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
     }
 
     @Test
+    @DisplayName("should get a error if iban is not 27 characters")
+    fun wrongIbanTest() {
+
+        val fakeIban = "IT94M0300203286"
+
+        webClient.get()
+            .uri("/account/$fakeIban")
+            .exchange()
+            .also { response -> response.expectStatus().is5xxServerError }
+
+    }
+
+    @Test
     @DisplayName("should get 404 if an account does not exist (account check)")
     fun notFoundAccountTest() {
-        val fakeIban = "IT94M0300203280778859775156"
+        val fakeIban = "IT11U0300203280797111426236"
         whenever(accountService.getAccount(any())).thenThrow(AccountNotFoundException::class.java)
 
         webClient.get()
@@ -121,7 +134,7 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
     @DisplayName("should get a account balance correctly")
     fun getAccountBalanceTest() {
 
-        val fakeIban = "IT94M0300203280778859775156"
+        val fakeIban = "IT11U0300203280797111426236"
         whenever(accountService.getAccountBalance(any(), anyOrNull())).thenReturn(balance())
 
         webClient.get()
@@ -134,10 +147,23 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
     }
 
     @Test
+    @DisplayName("should get a error if iban for balance is not 27 characters")
+    fun wrongIbanInBalanceTest() {
+
+        val fakeIban = "IT94M030020328775156"
+
+        webClient.get()
+            .uri("/account/$fakeIban/balance")
+            .exchange()
+            .also { response -> response.expectStatus().is5xxServerError }
+
+    }
+
+    @Test
     @DisplayName("should get 404 if an account does not exist (balance check)")
     fun notFoundAccountBalanceTest() {
 
-        val fakeIban = "IT94M0300203280778859775156"
+        val fakeIban = "IT11U0300203280797111426236"
         whenever(accountService.getAccountBalance(any(), anyOrNull())).thenThrow(AccountNotFoundException::class.java)
 
         webClient.get()
@@ -151,8 +177,8 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
     @Test
     @DisplayName("should transfer some money from an account to another")
     fun transferMoneyTest() {
-        val fromIban = "IT94M0300203280778859775156"
-        val toIban = "IT94M030020328077885977515"
+        val fromIban = "IT11U0300203280797111426236"
+        val toIban = "IT12H0300203280482631733322"
         whenever(accountService.transfer(any())).thenReturn(transferredResponse())
 
         webClient.patch()
@@ -168,8 +194,8 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
     @Test
     @DisplayName("should not transfer if amount is negative")
     fun amountIsNegativeInTransferTest() {
-        val fromIban = "IT94M0300203280778859775156"
-        val toIban = "IT94M030020328077885977515"
+        val fromIban = "IT11U0300203280797111426236"
+        val toIban = "IT12H0300203280482631733322"
 
         webClient.patch()
             .uri("/account/transfer")
@@ -182,8 +208,8 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
     @Test
     @DisplayName("should not transfer if the first account does not have enough money")
     fun accountDoesNotHaveEnoughMoneyTest() {
-        val fromIban = "IT94M0300203280778859775156"
-        val toIban = "IT94M030020328077885977515"
+        val fromIban = "IT11U0300203280797111426236"
+        val toIban = "IT12H0300203280482631733322"
         whenever(accountService.transfer(any())).thenThrow(NotEnoughMoneyException::class.java)
 
         webClient.patch()
@@ -198,8 +224,8 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
     @Test
     @DisplayName("should throw 404 if one of the accounts does not exist")
     fun notFoundAccountInTransferTest() {
-        val fromIban = "IT94M0300203280778859775156"
-        val toIban = "IT94M030020328077885977515"
+        val fromIban = "IT11U0300203280797111426236"
+        val toIban = "IT12H0300203280482631733322"
         whenever(accountService.transfer(any())).thenThrow(AccountNotFoundException::class.java)
 
         webClient.patch()
@@ -214,7 +240,7 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
     @Test
     @DisplayName("should add balance to account")
     fun addBalanceTest(){
-        val iban = "IT94M0300203280778859775156"
+        val iban = "IT11U0300203280797111426236"
         whenever(accountService.addBalance(any())).thenReturn(depositResponse())
 
         webClient.patch()
@@ -230,7 +256,7 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
     @Test
     @DisplayName("should not do deposit if balance is negative")
     fun dontAddBalanceIfNegativeTest(){
-        val iban = "IT94M0300203280778859775156"
+        val iban = "IT11U0300203280797111426236"
 
         webClient.patch()
             .uri("/account/deposit")
@@ -243,7 +269,7 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
     @Test
     @DisplayName("should throw 404 if account does not exist when depositing")
     fun notFoundAccountDuringDepositingTest() {
-        val iban = "IT94M0300203280778859775156"
+        val iban = "IT11U0300203280797111426236"
         whenever(accountService.addBalance(any())).thenThrow(AccountNotFoundException::class.java)
 
         webClient.patch()

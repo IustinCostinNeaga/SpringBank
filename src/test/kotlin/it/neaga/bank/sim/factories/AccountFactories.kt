@@ -15,13 +15,13 @@ object AccountFactories {
             name = "Dario",
             surname = "Lampa",
             email = "lampa.dario@example.it",
-            phone = "+39123123123",
-            password = "aPassword",
+            phone = "123-123-123",
+            password = "aLongPasswordThatIsAtLeast10Characters",
             defaultCurrency = Currency.EUR
         )
 
         fun newAccountResponse(
-            iban : String = "IT95V0300203280975296921156",
+            iban : String = "IT52G0300203280939318827487",
             currency : Currency = Currency.EUR,
         ) = NewAccountResponse(
             IBAN = iban,
@@ -29,7 +29,7 @@ object AccountFactories {
         )
 
         fun account(
-            iban : String = "IT95V0300203280975296921156",
+            iban : String = "IT52G0300203280939318827487",
             defaultCurrency: Currency = Currency.EUR,
             balance : Double = 0.0,
         ) = Account(
@@ -37,8 +37,8 @@ object AccountFactories {
             name = "Dario",
             surname = "Lampa",
             email = "lampa.dario@example.it",
-            phone = "+39123123123",
-            password = "aPassword",
+            phone = "123-123-123",
+            password = "aLongPasswordThatIsAtLeast10Characters",
             defaultCurrency = defaultCurrency,
             balance = balance,
         )
@@ -46,7 +46,7 @@ object AccountFactories {
     fun balance(
         balance : Double = 10.0,
         currency : Currency = Currency.EUR,
-        iban : String = "IT95V0300203280975296921156",
+        iban : String = "IT52G0300203280939318827487",
     ) = BalanceResponse(
         balance = balance,
         iban = iban,
@@ -78,7 +78,7 @@ object AccountFactories {
     )
 
     fun deposit(
-        iban: String = "IT95V0300203280975296921156",
+        iban: String = "IT52G0300203280939318827487",
         amount: Double = 1.0,
         currency: Currency = Currency.EUR,
     ) = DepositRequest(
