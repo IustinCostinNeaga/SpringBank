@@ -7,3 +7,6 @@ import java.lang.RuntimeException
 
 @ResponseStatus(HttpStatus.CONFLICT)
 class AccountAlreadyExistsException : RuntimeException("Account already exists")
+
+@ResponseStatus(HttpStatus.NOT_FOUND)
+class AccountNotFoundException : RuntimeException("Account not found")

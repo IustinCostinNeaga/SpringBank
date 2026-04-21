@@ -5,6 +5,7 @@ import it.neaga.bank.sim.dto.response.DepositResponse
 import it.neaga.bank.sim.dto.response.NewAccountResponse
 import it.neaga.bank.sim.dto.response.WireTransferResponse
 import it.neaga.bank.sim.exceptions.AccountAlreadyExistsException
+import it.neaga.bank.sim.exceptions.AccountNotFoundException
 import it.neaga.bank.sim.factories.AccountFactories.account
 import it.neaga.bank.sim.factories.AccountFactories.balance
 import it.neaga.bank.sim.factories.AccountFactories.deposit
@@ -27,6 +28,7 @@ import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTe
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment
 import org.springframework.dao.DataIntegrityViolationException
+import org.springframework.data.crossstore.ChangeSetPersister
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.servlet.client.RestTestClient
 import org.springframework.test.web.servlet.client.expectBody
@@ -100,6 +102,20 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
     }
 
     @Test
+    @DisplayName("should get 404 if an account does not exist (account check)")
+    fun notFoundAccountTest() {
+        val fakeIban = "IT94M0300203280778859775156"
+        whenever(accountService.getAccount(any())).thenThrow(AccountNotFoundException::class.java)
+
+        webClient.get()
+            .uri("/account/$fakeIban")
+            .exchange()
+            .also { response -> response.expectStatus().isNotFound }
+
+        verify(accountService).getAccount(fakeIban)
+    }
+
+    @Test
     @DisplayName("should get a account balance correctly")
     fun getAccountBalanceTest() {
 
@@ -111,6 +127,21 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
             .exchange()
             .also { response -> response.expectBody<BalanceResponse>().isEqualTo(balance()) }
             .also { response -> response.expectStatus().isOk }
+
+        verify(accountService).getAccountBalance(fakeIban, null)
+    }
+
+    @Test
+    @DisplayName("should get 404 if an account does not exist (balance check)")
+    fun notFoundAccountBalanceTest() {
+
+        val fakeIban = "IT94M0300203280778859775156"
+        whenever(accountService.getAccountBalance(any(), anyOrNull())).thenThrow(AccountNotFoundException::class.java)
+
+        webClient.get()
+            .uri("/account/$fakeIban/balance")
+            .exchange()
+            .also { response -> response.expectStatus().isNotFound }
 
         verify(accountService).getAccountBalance(fakeIban, null)
     }
@@ -133,6 +164,22 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
     }
 
     @Test
+    @DisplayName("should throw 404 if one of the accounts does not exist")
+    fun notFoundAccountInTransferTest() {
+        val fromIban = "IT94M0300203280778859775156"
+        val toIban = "IT94M030020328077885977515"
+        whenever(accountService.transfer(any())).thenThrow(AccountNotFoundException::class.java)
+
+        webClient.patch()
+            .uri("/account/transfer")
+            .body(wireTransfer(from = fromIban, to = toIban))
+            .exchange()
+            .also { response -> response.expectStatus().isNotFound }
+
+        verify(accountService).transfer(wireTransfer(from = fromIban, to = toIban))
+    }
+
+    @Test
     @DisplayName("should add balance to account")
     fun addBalanceTest(){
         val iban = "IT94M0300203280778859775156"
@@ -144,6 +191,21 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
             .exchange()
             .also { response -> response.expectBody<DepositResponse>().isEqualTo(depositResponse()) }
             .also { response -> response.expectStatus().isOk }
+
+        verify(accountService).addBalance(deposit(iban = iban))
+    }
+
+    @Test
+    @DisplayName("should throw 404 if account does not exist when depositing")
+    fun notFoundAccountDuringDepositingTest() {
+        val iban = "IT94M0300203280778859775156"
+        whenever(accountService.addBalance(any())).thenThrow(AccountNotFoundException::class.java)
+
+        webClient.patch()
+            .uri("/account/deposit")
+            .body(deposit(iban = iban))
+            .exchange()
+            .also { response -> response.expectStatus().isNotFound }
 
         verify(accountService).addBalance(deposit(iban = iban))
     }
