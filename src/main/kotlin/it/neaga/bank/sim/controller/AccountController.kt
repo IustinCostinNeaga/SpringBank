@@ -4,6 +4,7 @@ import it.neaga.bank.sim.dto.request.NewAccountRequest
 import it.neaga.bank.sim.dto.request.WireTransferRequest
 import it.neaga.bank.sim.dto.response.BalanceResponse
 import it.neaga.bank.sim.dto.response.NewAccountResponse
+import it.neaga.bank.sim.dto.response.WireTransferResponse
 import it.neaga.bank.sim.model.Account
 import it.neaga.bank.sim.model.Currency
 import it.neaga.bank.sim.service.AccountService
@@ -36,8 +37,8 @@ class AccountController(var accountService: AccountService) {
     }
 
     @PatchMapping("/transfer")
-    fun wireTransfer(@RequestBody wireTransfer: WireTransferRequest){
-        TODO()
+    fun wireTransfer(@RequestBody wireTransfer: WireTransferRequest): WireTransferResponse{
+        return accountService.transfer(wireTransfer)
     }
 
 }

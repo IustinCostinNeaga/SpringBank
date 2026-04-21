@@ -9,7 +9,6 @@ import it.neaga.bank.sim.dto.response.WireTransferResponse
 import it.neaga.bank.sim.model.Account
 import it.neaga.bank.sim.model.Currency
 import it.neaga.bank.sim.repository.AccountRepository
-import org.springframework.format.number.money.MonetaryAmountFormatter
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 
@@ -84,7 +83,7 @@ class AccountService(
         return response
     }
 
-    fun trasnfer(fromIban: String, toIban: String, amount: Double, currency: Currency): WireTransferResponse {
+    fun transfer(wireTransferRequest: WireTransferRequest): WireTransferResponse {
         TODO()
     }
 

@@ -3,7 +3,6 @@
 import it.neaga.bank.sim.dto.response.BalanceResponse
 import it.neaga.bank.sim.dto.response.NewAccountResponse
 import it.neaga.bank.sim.dto.response.WireTransferResponse
-import it.neaga.bank.sim.factories.AccountFactories
 import it.neaga.bank.sim.factories.AccountFactories.account
 import it.neaga.bank.sim.factories.AccountFactories.balance
 import it.neaga.bank.sim.factories.AccountFactories.newAccountRequest
@@ -87,15 +86,15 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
     fun transferMoneyTest() {
         val fromIban = "IT94M0300203280778859775156"
         val toIban = "IT94M030020328077885977515"
-        whenever(accountService.trasnfer(any(), any(), any(), any())).thenReturn(transferredOut())
+        whenever(accountService.transfer(any())).thenReturn(transferredOut())
 
         webClient.patch()
             .uri("/account/transfer")
-            .body(wireTransfer())
+            .body(wireTransfer(from = fromIban, to = toIban))
             .exchange()
             .also { response -> response.expectBody<WireTransferResponse>().isEqualTo(transferredOut()) }
             .also { response -> response.expectStatus().isOk }
 
-        verify(accountService.trasnfer(fromIban, toIban, 10.0, Currency.EUR))
+        verify(accountService).transfer(wireTransfer(from = fromIban, to = toIban))
     }
 }
