@@ -6,7 +6,6 @@ import it.neaga.bank.sim.dto.response.NewAccountResponse
 import it.neaga.bank.sim.dto.response.WireTransferResponse
 import it.neaga.bank.sim.exceptions.AccountAlreadyExistsException
 import it.neaga.bank.sim.exceptions.AccountNotFoundException
-import it.neaga.bank.sim.exceptions.NegativeDepositException
 import it.neaga.bank.sim.exceptions.NotEnoughMoneyException
 import it.neaga.bank.sim.factories.AccountFactories.account
 import it.neaga.bank.sim.factories.AccountFactories.balance
@@ -17,6 +16,7 @@ import it.neaga.bank.sim.factories.AccountFactories.newAccountResponse
 import it.neaga.bank.sim.factories.AccountFactories.transferredResponse
 import it.neaga.bank.sim.factories.AccountFactories.wireTransfer
 import it.neaga.bank.sim.model.Account
+import it.neaga.bank.sim.model.Currency
 import it.neaga.bank.sim.service.AccountService
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -144,6 +144,22 @@ class AccountControllerTest(@Autowired private val webClient: RestTestClient) {
             .also { response -> response.expectStatus().isOk }
 
         verify(accountService).getAccountBalance(fakeIban, null)
+    }
+
+    @Test
+    @DisplayName("should get a account balance correctly in another currency")
+    fun getAccountBalanceWithDifferentCurrencyTest() {
+
+        val fakeIban = "IT11U0300203280797111426236"
+        whenever(accountService.getAccountBalance(any(), anyOrNull())).thenReturn(balance(currency = Currency.USD))
+
+        webClient.get()
+            .uri("/account/$fakeIban/balance?currency=${Currency.USD.name}")
+            .exchange()
+            .also { response -> response.expectBody<BalanceResponse>().isEqualTo(balance(currency = Currency.USD)) }
+            .also { response -> response.expectStatus().isOk }
+
+        verify(accountService).getAccountBalance(fakeIban, Currency.USD)
     }
 
     @Test
