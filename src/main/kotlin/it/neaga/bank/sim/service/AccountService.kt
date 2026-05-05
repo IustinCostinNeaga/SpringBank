@@ -11,6 +11,7 @@ import it.neaga.bank.sim.dto.response.WireTransferResponse
 import it.neaga.bank.sim.model.Account
 import it.neaga.bank.sim.model.Currency
 import it.neaga.bank.sim.repository.AccountRepository
+import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
 import org.springframework.stereotype.Service
 
@@ -37,7 +38,8 @@ class IbanGenerator {
 class AccountService(
     private val ibanGenerator: IbanGenerator,
     private val accountRepository: AccountRepository,
-    private val currencyExchangeClient: CurrencyExchangeClient
+    private val currencyExchangeClient: CurrencyExchangeClient,
+    private val passwordEncoder: PasswordEncoder
 ) {
 
     fun createNewAccount(newAccount: NewAccountRequest): NewAccountResponse {
@@ -51,7 +53,7 @@ class AccountService(
                 surname = newAccount.surname,
                 email = newAccount.email,
                 phone = newAccount.phone,
-                password = newAccount.password,
+                password = passwordEncoder.encode(newAccount.password)!!,
                 defaultCurrency = newAccount.defaultCurrency,
             )
         )
